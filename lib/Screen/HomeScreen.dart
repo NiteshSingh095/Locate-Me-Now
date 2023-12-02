@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:locate_me_now/Services/LocationServices.dart';
 import 'package:locate_me_now/modal/user.dart';
 
@@ -10,11 +11,15 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
+  String location = "";
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _startLocationService();
+    _getLocation();
   }
 
   Future<void> _startLocationService() async {
@@ -43,6 +48,15 @@ class _HomeScreenState extends State<HomeScreen> {
     print(Users.alt);
   }
 
+  void _getLocation() async
+  {
+    List<Placemark> placemark = await placemarkFromCoordinates(Users.lat, Users.long);
+
+    setState(() {
+      location = '${placemark[0].street}, ${placemark[0].administrativeArea}, ${placemark[0].postalCode}, ${placemark[0].country}';
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -64,6 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
               InkWell(
                 onTap: () {
                   _startLocationService();
+                  _getLocation();
                 },
                 child: Padding(
                   padding: const EdgeInsets.only(
@@ -159,6 +174,20 @@ class _HomeScreenState extends State<HomeScreen> {
                     )
                   ],
                 )),
+              ),
+
+              // Container to display address
+              Padding(
+                padding: EdgeInsets.only(top: 30, bottom: 10, left: 75),
+                child: Container(
+                    child: Text(
+                      location,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 20,
+                      ),
+                    ),
+                ),
               ),
             ],
           ),
